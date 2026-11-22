@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>İstanbul Ulaşım Rehberi (Vanilla JS)</title>
+  <style>
+    * { box-sizing: border-box; font-family: system-ui, sans-serif; margin: 0; padding: 0; }
+    body { background: #f0f2f5; padding: 20px; color: #1c1e21; }
+    .container { max-width: 600px; margin: 0 auto; display: flex; flex-direction: column; gap: 20px; }
+    .card { background: #fff; padding: 20px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+    h1 { text-align: center; font-size: 22px; color: #e30613; }
+    h2 { font-size: 18px; margin-bottom: 15px; border-bottom: 2px solid #f0f2f5; padding-bottom: 8px; }
+    .form-group { display: flex; flex-direction: column; gap: 10px; margin-bottom: 15px; }
+    select, button { padding: 12px; border-radius: 8px; border: 1px solid #ccc; font-size: 15px; }
+    button { background: #0055a5; color: white; border: none; font-weight: bold; cursor: pointer; transition: 0.2s; }
+    button:hover { background: #003f7d; }
+    .sonuc { background: #f8f9fa; padding: 15px; border-radius: 8px; border-left: 4px solid #0055a5; display: none; }
+    ul { list-style: none; display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+    li { background: #e4e6eb; padding: 6px 12px; border-radius: 6px; font-weight: bold; font-size: 14px; }
+    .aktarma { color: #e30613; font-weight: bold; margin: 8px 0; }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <h1>İstanbul Ulaşım Asistanı</h1>
+
+  <!-- BÖLÜM 1: İETT OTOBÜS SAATLERİ -->
+  <section class="card">
+    <h2>🚌 İETT Hat Saatleri</h2>
+    <div class="form-group">
+      <select id="hatSecimi">
+        <option value="">Bir İETT hattı seçin...</option>
+        <option value="500T">500T - Tuzla Şifa Mah. / Cevizlibağ</option>
+        <option value="19F">19F - Fındıklı Mah. / Kadıköy</option>
+        <option value="14M">14M - Yeniçamlıca / Kadıköy</option>
+      </select>
+      <button id="saatGetirBtn">Kalkış Saatlerini Göster</button>
+    </div>
+    <div id="iettSonuc" class="sonuc"></div>
+  </section>
+
+  <!-- BÖLÜM 2: METRO ROTA HESAPLAYICI -->
+  <section class="card">
+    <h2>🚇 Metro Rota & Aktarma Bulucu</h2>
+    <div class="form-group">
+      <select id="baslangicDurak"></select>
+      <select id="varisDurak"></select>
+      <button id="rotaBulBtn">Rota Hesapla</button>
+    </div>
+    <div id="metroSonuc" class="sonuc"></div>
+  </section>
+</div>
+
+<script>
+  // 1. ÖRNEK İETT VERİLERİ (Nesne ve Dizi yapısı)
+  const iettVerileri = {
+    "500T": ["06:00", "06:20", "06:40", "07:00", "07:30", "08:00", "09:00", "12:00", "17:00", "21:00"],
+    "19F":  ["06:15", "06:45", "07:15", "07:45", "08:30", "10:00", "14:00", "18:00", "22:30"],
+    "14M":  ["06:10", "06:50", "07:30", "08:10", "11:00", "15:00", "19:00", "23:00"]
+  };
+
+  // 2. ÖRNEK METRO HATLARI VERİSİ
+  const metroHatlari = {
+    "M4 (Kadıköy - Sabiha Gökçen)": ["Kadıköy", "Ayrılık Çeşmesi", "Ünalan", "Kozyatağı", "Bostancı", "Kartal", "Pendik"],
+    "M8 (Bostancı - Parseller)": ["Bostancı", "Kozyatağı", "İçerenköy", "Dudullu", "Parseller"],
+    "M5 (Üsküdar - Samandıra)": ["Üsküdar", "Altunizade", "Ümraniye", "Çarşı", "Dudullu", "Çekmeköy"]
+  };
+
+  // DOM Seçicileri
+  const hatSecimi = document.querySelector("#hatSecimi");
+  const iettSonuc = document.querySelector("#iettSonuc");
+  const baslangicDurak = document.querySelector("#baslangicDurak");
+  const varisDurak = document.querySelector("#varisDurak");
+  const metroSonuc = document.querySelector("#metroSonuc");
+
+  // İETT Saatlerini Listeleme Olayı
+  document.querySelector("#saatGetirBtn").addEventListener("click", () => {
+    const secilenHat = hatSecimi.value;
+    if (!secilenHat) return alert("Lütfen bir otobüs hattı seçin!");
+
+    const saatler = iettVerileri[secilenHat];
+    iettSonuc.style.display = "block";
+    iettSonuc.innerHTML = `<strong>${secilenHat} Kalkış Saatleri:</strong><ul>` + 
+      saatler.map(saat => `<li>${saat}</li>`).join("") + `</ul>`;
+  });
+
+  // Tüm benzersiz durakları açılır menülere (select) doldurma
+  const tumDuraklar = [...new Set(Object.values(metroHatlari).flat())];
+  tumDuraklar.forEach(durak => {
+    baslangicDurak.innerHTML += `<option value="${durak}">${durak}</option>`;
+    varisDurak.innerHTML += `<option value="${durak}">${durak}</option>`;
+  });
+
+  // Metro Rota ve Aktarma Hesaplama Algoritması
+  document.querySelector("#rotaBulBtn").addEventListener("click", () => {
+    const baslangic = baslangicDurak.value;
+    const varis = varisDurak.value;
+
+    if (baslangic === varis) return alert("Başlangıç ve varış durağı aynı olamaz!");
+
+    let rotaMetni = "";
+
+    // Senaryo 1: İki durak da aynı hat üzerinde mi?
+    for (const [hatAdi, duraklar] of Object.entries(metroHatlari)) {
+      if (duraklar.includes(baslangic) && duraklar.includes(varis)) {
+        const durakSayisi = Math.abs(duraklar.indexOf(baslangic) - duraklar.indexOf(varis));
+        rotaMetni = `<strong>Direkt Ulaşım:</strong> ${hatAdi} hattına binin.<br>Toplam <strong>${durakSayisi} durak</strong> sonra <strong>${varis}</strong> durağında inin.`;
+        break;
+      }
+    }
+
+    // Senaryo 2: Aktarma gerekiyorsa ortak kesişim durağını bul
+    if (!rotaMetni) {
+      for (const [hat1, duraklar1] of Object.entries(metroHatlari)) {
+        if (!duraklar1.includes(baslangic)) continue;
+        
+        for (const [hat2, duraklar2] of Object.entries(metroHatlari)) {
+          if (hat1 === hat2 || !duraklar2.includes(varis)) continue;
+
+          // İki hattın ortak durağını (aktarma noktasını) bul
+          const ortakDurak = duraklar1.find(d => duraklar2.includes(d));
+          if (ortakDurak) {
+            rotaMetni = `
+              1. <strong>${baslangic}</strong> durağından <strong>${hat1}</strong> hattına binin.<br>
+              <div class="aktarma">🔄 ${ortakDurak} durağında inip ${hat2} hattına aktarma yapın.</div>
+              2. <strong>${varis}</strong> durağında inin.
+            `;
+            break;
+          }
+        }
+        if (rotaMetni) break;
+      }
+    }
+
+    metroSonuc.style.display = "block";
+    metroSonuc.innerHTML = rotaMetni || "Bu iki durak arasında tanımlı rota bulunamadı.";
+  });
+</script>
+
+</body>
+</html>
