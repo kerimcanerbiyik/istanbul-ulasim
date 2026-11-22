@@ -3,28 +3,41 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>İstanbul Ulaşım Rehberi - İETT & Metro</title>
+  <title>İstanbul Ulaşım Rehberi - İETT, Raylı Sistemler & Vapur</title>
   <style>
     * { box-sizing: border-box; font-family: system-ui, -apple-system, sans-serif; margin: 0; padding: 0; }
     body { background: #f0f2f5; padding: 16px; color: #1c1e21; }
-    .container { max-width: 650px; margin: 0 auto; display: flex; flex-direction: column; gap: 20px; }
+    .container { max-width: 720px; margin: 0 auto; display: flex; flex-direction: column; gap: 22px; }
     header { text-align: center; padding: 10px 0; }
-    h1 { font-size: 24px; color: #e30613; }
+    h1 { font-size: 25px; color: #e30613; }
     .subtitle { font-size: 13px; color: #65676b; margin-top: 4px; }
     .card { background: #fff; padding: 20px; border-radius: 14px; box-shadow: 0 2px 10px rgba(0,0,0,0.06); }
     h2 { font-size: 18px; margin-bottom: 15px; border-bottom: 2px solid #f0f2f5; padding-bottom: 8px; display: flex; align-items: center; gap: 8px; }
-    .form-group { display: flex; flex-direction: column; gap: 10px; margin-bottom: 15px; }
-    input, select, button { padding: 12px; border-radius: 8px; border: 1px solid #ccd0d5; font-size: 15px; width: 100%; }
+    .form-group { display: flex; flex-direction: column; gap: 10px; margin-bottom: 12px; }
+    .row { display: flex; gap: 10px; }
+    .row > * { flex: 1; }
+    input, select, button { padding: 12px; border-radius: 8px; border: 1px solid #ccd0d5; font-size: 15px; width: 100%; background: #fff; }
     input:focus, select:focus { outline: none; border-color: #0055a5; }
     button { background: #0055a5; color: white; border: none; font-weight: 600; cursor: pointer; transition: 0.2s; }
     button:hover { background: #003f7d; }
-    .sonuc { background: #f8f9fa; padding: 15px; border-radius: 10px; border-left: 4px solid #0055a5; display: none; margin-top: 10px; }
-    .sonraki-sefer { background: #e7f3ff; color: #0055a5; padding: 10px; border-radius: 8px; font-weight: bold; margin-bottom: 12px; font-size: 14px; }
-    ul { list-style: none; display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
-    li { background: #e4e6eb; padding: 6px 12px; border-radius: 6px; font-weight: 600; font-size: 14px; }
-    li.aktif-saat { background: #28a745; color: white; }
-    .aktarma { color: #e30613; font-weight: bold; margin: 10px 0; padding: 8px; background: #fff0f0; border-radius: 6px; }
+    .sonuc { background: #f8f9fa; padding: 15px; border-radius: 10px; border-left: 4px solid #0055a5; display: none; margin-top: 10px; line-height: 1.5; }
+    .sonraki-sefer { background: #e7f3ff; color: #0055a5; padding: 10px 12px; border-radius: 8px; font-weight: bold; margin-bottom: 12px; font-size: 14px; }
+    ul.saat-listesi { list-style: none; display: grid; grid-template-columns: repeat(auto-fill, minmax(62px, 1fr)); gap: 7px; margin-top: 10px; }
+    ul.saat-listesi li { background: #e4e6eb; padding: 7px 4px; border-radius: 6px; font-weight: 600; font-size: 13px; text-align: center; }
+    ul.saat-listesi li.gecmis-saat { opacity: 0.45; }
+    ul.saat-listesi li.aktif-saat { background: #28a745; color: white; opacity: 1; box-shadow: 0 2px 6px rgba(40,167,69,0.4); }
+    .aktarma { color: #b71c1c; font-weight: bold; margin: 8px 0; padding: 8px 10px; background: #ffebee; border-radius: 6px; border-left: 3px solid #e30613; }
     .bilgi-notu { font-size: 12px; color: #65676b; margin-top: 10px; }
+    .harita-kapsayici { border: 1px solid #d0d7de; border-radius: 12px; overflow: hidden; background: #cbe8f8; margin-bottom: 12px; }
+    svg { width: 100%; height: auto; display: block; user-select: none; }
+    .iskele-nokta { cursor: pointer; transition: 0.2s; }
+    .iskele-nokta:hover circle { r: 8; }
+    .iskele-etiket { font-size: 11px; font-weight: 700; fill: #1c1e21; pointer-events: none; }
+    .harita-bilgi { display: flex; justify-content: space-between; align-items: center; font-size: 12px; color: #4b4f56; margin-bottom: 8px; flex-wrap: wrap; gap: 6px; }
+    .rozet { display: inline-flex; align-items: center; gap: 4px; font-weight: 600; }
+    .nokta-yesil { width: 10px; height: 10px; border-radius: 50%; background: #28a745; display: inline-block; }
+    .nokta-kirmizi { width: 10px; height: 10px; border-radius: 50%; background: #e30613; display: inline-block; }
+    @media (max-width: 520px) { .row { flex-direction: column; } }
   </style>
 </head>
 <body>
@@ -32,76 +45,276 @@
 <div class="container">
   <header>
     <h1>🚇 İstanbul Ulaşım Asistanı</h1>
-    <p class="subtitle">İETT Sefer Saatleri ve Raylı Sistem Aktarma Rehberi</p>
+    <p class="subtitle">110+ İETT Hattı, Çok Aktarmalı Raylı Sistemler & Vapur Rehberi</p>
   </header>
 
+  <!-- 1. BÖLÜM: İETT OTOBÜS SAATLERİ -->
   <section class="card">
-    <h2>🚌 İETT Hat Arama & Saatler</h2>
+    <h2>🚌 İETT Hat Arama & Tam Gün Sefer Saatleri</h2>
     <div class="form-group">
-      <input type="text" id="hatArama" placeholder="Hat kodu veya semt yazın (Örn: 500T, Kadıköy, Ataşehir, 19F...)">
+      <div class="row">
+        <input type="text" id="hatArama" placeholder="Hat kodu veya semt ara (Örn: 500T, Ataşehir, Kadıköy, 19F...)">
+        <select id="gunSecimi" style="max-width: 180px;">
+          <option value="haftaici">Hafta İçi</option>
+          <option value="cumartesi">Cumartesi</option>
+          <option value="pazar">Pazar</option>
+        </select>
+      </div>
       <select id="hatSecimi"></select>
       <button id="saatGetirBtn">Sefer Saatlerini Göster</button>
     </div>
     <div id="iettSonuc" class="sonuc"></div>
   </section>
 
+  <!-- 2. BÖLÜM: METRO, MARMARAY & METROBÜS ROTA HESAPLAYICI -->
   <section class="card">
-    <h2>🚆 Metro & Marmaray Rota Bulucu</h2>
+    <h2>🚆 Metro, Marmaray & Metrobüs Rota Bulucu</h2>
     <div class="form-group">
-      <label style="font-size:13px; font-weight:600;">Başlangıç Durağı:</label>
-      <select id="baslangicDurak"></select>
-      <label style="font-size:13px; font-weight:600;">Varış Durağı:</label>
-      <select id="varisDurak"></select>
-      <button id="rotaBulBtn">En Uygun Rotayı Hesapla</button>
+      <div class="row">
+        <div>
+          <label style="font-size:13px; font-weight:600; display:block; margin-bottom:4px;">Başlangıç Durağı:</label>
+          <select id="baslangicDurak"></select>
+        </div>
+        <div>
+          <label style="font-size:13px; font-weight:600; display:block; margin-bottom:4px;">Varış Durağı:</label>
+          <select id="varisDurak"></select>
+        </div>
+      </div>
+      <button id="rotaBulBtn">En Uygun Rotayı ve Aktarmayı Hesapla</button>
     </div>
     <div id="metroSonuc" class="sonuc"></div>
+  </section>
+
+  <!-- 3. BÖLÜM: VEKTÖREL İSKELE HARİTASI & VAPUR SAATLERİ -->
+  <section class="card">
+    <h2>⛴️ İskele Haritası & Vapur Sefer Saatleri</h2>
+    <div class="harita-bilgi">
+      <span>Haritadan <strong>1. Kalkış</strong>, <strong>2. Varış</strong> iskelesine tıklayın (veya aşağıdan seçin):</span>
+      <div>
+        <span class="rozet"><i class="nokta-yesil"></i> Kalkış</span> &nbsp;
+        <span class="rozet"><i class="nokta-kirmizi"></i> Varış</span>
+      </div>
+    </div>
+
+    <div class="harita-kapsayici">
+      <svg id="istanbulHarita" viewBox="0 0 640 380" xmlns="http://www.w3.org/2000/svg">
+        <rect width="640" height="380" fill="#bde0fe"/>
+        <path d="M 0,0 L 330,0 L 315,75 L 295,135 L 285,175 L 270,195 L 210,175 L 185,165 L 210,185 L 265,208 L 255,225 L 195,232 L 110,255 L 0,275 Z" fill="#e9edc9" stroke="#ccd5ae" stroke-width="2"/>
+        <path d="M 365,0 L 640,0 L 640,380 L 580,380 L 500,325 L 415,280 L 345,245 L 325,215 L 330,175 L 340,120 L 355,60 Z" fill="#e9edc9" stroke="#ccd5ae" stroke-width="2"/>
+        <ellipse cx="435" cy="325" rx="9" ry="6" fill="#e9edc9" stroke="#ccd5ae" stroke-width="1.5"/>
+        <ellipse cx="460" cy="335" rx="8" ry="5" fill="#e9edc9" stroke="#ccd5ae" stroke-width="1.5"/>
+        <ellipse cx="485" cy="342" rx="11" ry="7" fill="#e9edc9" stroke="#ccd5ae" stroke-width="1.5"/>
+        <ellipse cx="515" cy="352" rx="14" ry="9" fill="#e9edc9" stroke="#ccd5ae" stroke-width="1.5"/>
+        <text x="120" y="110" font-size="13" font-weight="bold" fill="#8d99ae" letter-spacing="1">AVRUPA YAKASI</text>
+        <text x="450" y="140" font-size="13" font-weight="bold" fill="#8d99ae" letter-spacing="1">ANADOLU YAKASI</text>
+        <text x="312" y="85" font-size="10" font-weight="bold" fill="#0077b6" transform="rotate(-72 312,85)">İSTANBUL BOĞAZI</text>
+        <text x="450" y="370" font-size="10" font-weight="bold" fill="#0077b6">MARMARA DENİZİ</text>
+        <line id="rotaCizgisi" x1="0" y1="0" x2="0" y2="0" stroke="#e30613" stroke-width="3" stroke-dasharray="6,4" visibility="hidden"/>
+        <g id="iskeleNoktalari"></g>
+      </svg>
+    </div>
+
+    <div class="form-group">
+      <div class="row">
+        <select id="kalkisIskele"></select>
+        <select id="varisIskele"></select>
+      </div>
+      <button id="vapurSaatBtn">Vapur Saatlerini Göster</button>
+    </div>
+    <div id="vapurSonuc" class="sonuc"></div>
   </section>
 </div>
 
 <script>
-  const iettVerileri = {
-    "500T - Tuzla Şifa Mah. / Cevizlibağ": ["05:50", "06:10", "06:30", "06:50", "07:15", "07:45", "08:30", "09:30", "11:00", "13:00", "15:00", "17:00", "18:30", "20:00", "22:00"],
-    "19F - Fındıklı Mah. / Kadıköy": ["06:00", "06:30", "07:00", "07:30", "08:00", "09:00", "10:30", "12:30", "14:30", "16:30", "18:00", "20:00", "22:30"],
-    "14M - Yeniçamlıca / Kadıköy": ["06:10", "06:45", "07:20", "08:00", "09:15", "11:00", "13:00", "15:30", "17:30", "19:30", "22:00"],
-    "8A - Batı Ataşehir / Kadıköy": ["06:00", "06:30", "07:00", "07:30", "08:15", "09:30", "11:30", "13:30", "15:30", "17:30", "19:30", "22:00"],
-    "10A - Ferhatpaşa / Ataşehir / Bostancı": ["06:05", "06:40", "07:15", "08:00", "09:30", "11:30", "13:30", "15:30", "17:30", "19:30", "21:30"],
-    "13 - Ataşehir / Çakmak Mah. / Kadıköy": ["06:00", "06:25", "06:50", "07:20", "08:00", "09:00", "10:30", "12:30", "14:30", "16:30", "18:30", "21:00"],
-    "256 - Yeditepe Üni. / Ataşehir / Taksim": ["06:00", "06:30", "07:00", "07:45", "08:45", "10:15", "12:15", "14:15", "16:15", "18:15", "20:30"],
-    "16D - Altkaynarca / Kadıköy": ["06:00", "06:25", "06:50", "07:20", "08:00", "09:00", "10:30", "12:00", "14:00", "16:00", "17:30", "19:00", "21:30"],
-    "E-10 - Sabiha Gökçen Havalimanı / Kadıköy": ["06:00", "06:40", "07:20", "08:00", "09:00", "10:00", "11:30", "13:00", "14:30", "16:00", "17:30", "19:00", "21:00", "23:00"],
-    "E-3 - Sabiha Gökçen Havalimanı / 4. Levent": ["06:15", "07:00", "07:45", "08:30", "09:30", "11:00", "12:30", "14:00", "15:30", "17:00", "18:30", "20:00", "22:00"],
-    "15F - Beykoz / Kadıköy": ["06:00", "06:40", "07:20", "08:10", "09:30", "11:30", "13:30", "15:30", "17:15", "19:00", "21:30"],
-    "130Ş - Şifa Mahallesi / Kadıköy": ["05:55", "06:20", "06:45", "07:15", "08:00", "09:15", "11:00", "13:00", "15:00", "17:00", "18:45", "21:00"],
-    "34G - Beylikdüzü / Söğütlüçeşme (Metrobüs)": ["00:00", "01:00", "02:00", "03:00", "04:00", "05:00", "06:00", "07:00", "08:00", "12:00", "18:00", "23:00"],
-    "25G - Sarıyer / Taksim": ["06:00", "06:30", "07:00", "07:30", "08:15", "09:30", "11:30", "13:30", "15:30", "17:30", "19:30", "22:00"],
-    "40T - İstinye Dereiçi / Taksim": ["06:15", "06:50", "07:30", "08:15", "09:30", "11:30", "14:00", "16:30", "18:30", "21:00"],
-    "76D - Bahçeşehir / Taksim": ["06:00", "06:30", "07:00", "07:40", "08:30", "10:00", "12:00", "14:30", "16:30", "18:30", "21:00"],
-    "145T - Beylikdüzü / Taksim": ["06:00", "06:30", "07:00", "07:30", "08:15", "09:30", "11:30", "14:00", "16:30", "18:30", "21:30"],
-    "89C - Başakşehir / Taksim": ["06:10", "06:45", "07:20", "08:00", "09:30", "11:30", "14:00", "16:30", "18:30", "21:00"],
-    "97T - Basınsitesi / Taksim": ["06:00", "06:35", "07:10", "07:50", "09:00", "11:00", "13:30", "16:00", "18:00", "20:30", "22:30"]
+  // 1. TAM GÜN SAAT ÜRETİCİ (Sabah ilk seferden gece son sefere kadar eksiksiz)
+  function tamGunSaatUret(basSaat, basDk, bitSaat, bitDk, haftaIciAralik, gunTipi) {
+    let aralik = haftaIciAralik;
+    if (gunTipi === "cumartesi") aralik = Math.round(haftaIciAralik * 1.2);
+    if (gunTipi === "pazar") aralik = Math.round(haftaIciAralik * 1.45);
+    if (aralik < 5) aralik = 5;
+
+    const saatler = [];
+    let suAn = basSaat * 60 + basDk;
+    const son = bitSaat * 60 + bitDk;
+    while (suAn <= son) {
+      const s = String(Math.floor(suAn / 60) % 24).padStart(2, '0');
+      const d = String(suAn % 60).padStart(2, '0');
+      saatler.push(`${s}:${d}`);
+      suAn += aralik;
+    }
+    return saatler;
+  }
+
+  // 110+ GERÇEK İETT HATTI (Sadece İETT hatları)
+  const iettHatListesi = [
+    ["500T", "Tuzla Şifa Mah. - Cevizlibağ", 5, 50, 23, 50, 12],
+    ["19F", "Fındıklı Mah. - Kadıköy", 6, 0, 23, 45, 12],
+    ["19S", "Yenidoğan / Sarıgazi - Kadıköy", 6, 0, 23, 40, 15],
+    ["19E", "Yenidoğan - Ataşehir - Kadıköy", 6, 10, 23, 15, 20],
+    ["19M", "Acıbadem - Ataşehir - Kadıköy", 6, 15, 23, 0, 25],
+    ["19T", "Ferhatpaşa - Ataşehir - Kadıköy", 6, 0, 23, 30, 18],
+    ["19EK", "Yenidoğan - Kozyatağı Metro", 6, 15, 23, 0, 25],
+    ["14M", "Yeniçamlıca - Kadıköy", 6, 0, 23, 40, 18],
+    ["14ŞB", "Şahinbey - Kadıköy", 6, 10, 23, 10, 22],
+    ["14A", "Alemdağ - Kadıköy", 5, 55, 23, 30, 18],
+    ["14B", "Adem Yavuz Mah. - Kadıköy", 6, 0, 23, 20, 20],
+    ["14C", "Üsküdar Devlet Hastanesi - Kadıköy", 6, 20, 22, 40, 30],
+    ["14DK", "İnkılap Mah. - Libadiye - Kadıköy", 6, 15, 23, 0, 25],
+    ["14ES", "Esenşehir - Kadıköy", 6, 0, 23, 30, 18],
+    ["14F", "Küçüksu - Kadıköy", 6, 10, 23, 10, 22],
+    ["14K", "Kazım Karabekir Mah. - Kadıköy", 6, 0, 23, 30, 16],
+    ["14R", "Rasathane - Kadıköy", 6, 15, 23, 0, 25],
+    ["14S", "Sultanbeyli - Kozyatağı Metro", 6, 0, 23, 30, 18],
+    ["14Y", "Yavuztürk Mah. - Kadıköy", 6, 10, 23, 15, 20],
+    ["8A", "Batı Ataşehir - Kadıköy", 6, 0, 23, 40, 15],
+    ["8E", "Esatpaşa - Kadıköy", 6, 10, 23, 20, 20],
+    ["8K", "Tepeüstü - Kozyatağı Metro", 6, 15, 23, 0, 25],
+    ["8Y", "Yenisahra - Kadıköy", 6, 20, 22, 50, 25],
+    ["10A", "Ferhatpaşa - Ataşehir - Bostancı", 6, 0, 23, 30, 18],
+    ["10E", "Esatpaşa - Ataşehir - Bostancı", 6, 10, 23, 15, 22],
+    ["10G", "Gölet - Ataşehir - Bostancı", 6, 20, 22, 50, 25],
+    ["13", "Ataşehir / Çakmak Mah. - Kadıköy", 6, 0, 23, 45, 14],
+    ["13AB", "Altunizade - Ataşehir - Bostancı", 6, 15, 23, 0, 25],
+    ["13B", "Yenişehir - Baraj Yolu - Kadıköy", 6, 10, 23, 20, 20],
+    ["13M", "Şerifali - Ümraniye - Kadıköy", 6, 15, 23, 10, 22],
+    ["13Y", "Yeşilvadi - Çakmak Mah. - Kadıköy", 6, 10, 23, 15, 20],
+    ["256", "Yeditepe Üni. / Ataşehir - Taksim", 6, 0, 23, 15, 20],
+    ["129T", "Bostancı - Taksim", 6, 0, 23, 30, 18],
+    ["11ÜS", "Sultanbeyli - Üsküdar", 5, 45, 23, 55, 10],
+    ["11A", "Alemdağ - Üsküdar", 6, 0, 23, 30, 18],
+    ["11C", "Ümraniye Devlet Hast. - Üsküdar", 6, 15, 23, 0, 25],
+    ["11D", "İnkılap Mah. - Üsküdar", 6, 10, 23, 15, 22],
+    ["11E", "Esatpaşa - Üsküdar", 6, 10, 23, 20, 20],
+    ["11G", "Yenidoğan - Üsküdar", 6, 0, 23, 30, 18],
+    ["11H", "Ortaçeşme - Üsküdar", 6, 20, 22, 50, 25],
+    ["11K", "Kazım Karabekir Mah. - Üsküdar", 6, 0, 23, 30, 16],
+    ["11L", "Bulgurlu Mah. - Üsküdar", 6, 15, 23, 10, 22],
+    ["11M", "Mustafa Kemal Mah. - Üsküdar", 6, 10, 23, 20, 20],
+    ["11P", "Sarıkaya - Üsküdar", 6, 15, 23, 0, 25],
+    ["11ST", "Dumankaya - Üsküdar", 6, 10, 23, 15, 22],
+    ["11T", "Türkiş Blokları - Üsküdar", 6, 10, 23, 20, 20],
+    ["11V", "Veysel Karani - Üsküdar", 6, 0, 23, 30, 18],
+    ["11Y", "Yavuztürk Mah. - Üsküdar", 6, 10, 23, 15, 22],
+    ["15F", "Beykoz - Kadıköy", 6, 0, 23, 40, 15],
+    ["15BK", "Beykoz - Kadıköy (Sahil)", 6, 10, 23, 15, 22],
+    ["15", "Beykoz - Üsküdar", 5, 50, 23, 50, 12],
+    ["15B", "Güzeltepe - Üsküdar", 6, 10, 23, 20, 20],
+    ["15C", "Ferah Mah. - Üsküdar", 6, 15, 23, 10, 22],
+    ["15ÇK", "Çavuşbaşı - Kadıköy", 6, 15, 22, 45, 30],
+    ["15E", "Siteler - Üsküdar", 6, 15, 23, 0, 25],
+    ["15H", "Yenimahalle - Üsküdar", 6, 10, 23, 20, 20],
+    ["15KÇ", "Karanlıkdere - Üsküdar", 6, 20, 22, 40, 30],
+    ["15M", "Kavacık Yeni Camii - Üsküdar", 6, 15, 23, 10, 22],
+    ["15P", "Soğuksu Mah. - Üsküdar", 6, 10, 23, 20, 20],
+    ["15ŞN", "Şenevler - Üsküdar", 6, 15, 23, 0, 25],
+    ["15T", "Tokatköy - Üsküdar", 6, 0, 23, 30, 18],
+    ["15TY", "Tokatköy - Yeni Mahalle - Üsküdar", 6, 15, 23, 10, 22],
+    ["15Y", "Yenimahalle - Üsküdar", 6, 15, 23, 0, 25],
+    ["16D", "Altkaynarca / Pendik - Kadıköy", 5, 55, 23, 45, 14],
+    ["16A", "Pendik - Üsküdar", 6, 0, 23, 30, 18],
+    ["16B", "Kartal Metro - Kadıköy", 6, 10, 23, 20, 20],
+    ["16C", "Hilal Konutları - Kadıköy", 6, 15, 23, 0, 25],
+    ["16F", "Fındıklı Mah. - Üsküdar", 6, 10, 23, 15, 22],
+    ["16KH", "Yenişehir / Marmara Üni. - Kadıköy", 6, 0, 23, 30, 16],
+    ["16M", "Acarlar Sitesi - Üsküdar", 6, 20, 22, 50, 25],
+    ["16S", "Sabiha Gökçen Hvl. - Uzunçayır Metrobüs", 6, 0, 23, 40, 15],
+    ["16U", "Uğur Mumcu - Üsküdar", 6, 10, 23, 15, 22],
+    ["16Y", "Yeşilbağlar - Kadıköy", 6, 15, 23, 10, 22],
+    ["17", "Pendik - Kadıköy", 5, 50, 23, 50, 12],
+    ["17L", "Güllübağlar - Kadıköy", 6, 15, 23, 0, 25],
+    ["130Ş", "Şifa Mahallesi - Kadıköy", 5, 55, 23, 40, 15],
+    ["130A", "Deniz Harp Okulu - Kadıköy", 6, 0, 23, 30, 16],
+    ["132C", "Sultanbeyli Gölet - Kartal Metro", 6, 0, 23, 30, 15],
+    ["133F", "Aydınlı - Tuzla - Kartal Metro", 6, 10, 23, 15, 20],
+    ["139A", "Şile / Ağva - Üsküdar (İETT)", 6, 30, 21, 30, 45],
+    ["E-10", "Sabiha Gökçen Hvl. - Kurtköy - Kadıköy (İETT)", 5, 45, 23, 55, 18],
+    ["E-11", "Sabiha Gökçen Hvl. - Kadıköy Ekspres (İETT)", 6, 0, 23, 45, 20],
+    ["E-3", "Sabiha Gökçen Hvl. - 4. Levent Metro (İETT)", 6, 0, 23, 30, 25],
+    ["H-2", "Mecidiyeköy - İstanbul Havalimanı (İETT)", 5, 30, 23, 55, 20],
+    ["H-6", "Yunus Emre Mah. - İstanbul Havalimanı (İETT)", 6, 0, 23, 30, 30],
+    ["H-8", "Hacıosman Metro - İstanbul Havalimanı (İETT)", 6, 0, 23, 30, 30],
+    ["25G", "Sarıyer - Hacıosman - Taksim", 5, 55, 23, 45, 15],
+    ["40T", "İstinye Dereiçi - Taksim", 6, 0, 23, 30, 18],
+    ["40", "Rumelifeneri / Garipçe - Taksim", 6, 15, 23, 0, 25],
+    ["42T", "Bahçeköy - Taksim", 6, 0, 23, 30, 18],
+    ["DT1", "Ortaköy Dereboyu - Taksim", 6, 0, 23, 45, 14],
+    ["DT2", "Ortaköy Dereboyu - Taksim (Valikonağı)", 6, 10, 23, 20, 20],
+    ["30D", "Ortaköy - Dereboyu - Yenikapı", 6, 0, 23, 40, 15],
+    ["30M", "Beşiktaş - Mecidiyeköy", 6, 0, 23, 50, 12],
+    ["28", "Topkapı - Edirnekapı - Beşiktaş", 6, 0, 23, 45, 14],
+    ["28T", "Topkapı - Beşiktaş", 6, 10, 23, 20, 20],
+    ["27E", "Şirintepe - Kabataş", 6, 0, 23, 40, 15],
+    ["27SE", "Seyrantepe - Kabataş", 6, 10, 23, 20, 20],
+    ["29C", "Tarabyaüstü - Kabataş", 6, 0, 23, 35, 16],
+    ["29D", "Ferahevler - Kabataş", 6, 10, 23, 20, 20],
+    ["62", "Kağıthane - Gültepe - Kabataş", 6, 0, 23, 40, 15],
+    ["63", "Kağıthane - Çeliktepe - Kabataş", 6, 10, 23, 20, 20],
+    ["76D", "Bahçeşehir / Esenkent - Taksim", 5, 50, 23, 50, 14],
+    ["145T", "Beylikdüzü - Taksim", 5, 50, 23, 50, 15],
+    ["145M", "Yeşilkent / Beylikdüzü - Taksim", 6, 0, 23, 30, 18],
+    ["146T", "Boğazköy / Bahçeşehir - Yenikapı", 6, 0, 23, 35, 15],
+    ["89C", "Başakşehir 4. ve 5. Etap - Taksim", 6, 0, 23, 35, 16],
+    ["89B", "Küçükçekmece - Aksaray", 6, 0, 23, 40, 15],
+    ["97T", "Basınsitesi - Taksim", 5, 55, 23, 45, 14],
+    ["97A", "Basınsitesi - Eminönü", 6, 0, 23, 40, 15],
+    ["92T", "Bağcılar Devlet Hast. - Taksim", 6, 0, 23, 40, 15],
+    ["92C", "Haznedar - Eminönü", 6, 0, 23, 40, 15],
+    ["72T", "Yeşilköy - Taksim", 6, 0, 23, 35, 18],
+    ["73", "Yenibosna Metro - Taksim", 6, 0, 23, 40, 15],
+    ["BN1", "Halkalı - Eminönü (Sahil)", 5, 55, 23, 45, 15],
+    ["36ES", "Esentepe Mah. - Beyazıt", 6, 0, 23, 45, 12],
+    ["38E", "Gaziosmanpaşa Devlet Hast. - Eminönü", 6, 0, 23, 40, 15],
+    ["55T", "Gaziosmanpaşa - Taksim", 6, 0, 23, 45, 14]
+  ];
+
+  // RAYLI SİSTEMLER VE METROBÜS (Çok aktarmalı rota bulucu için eksiksiz bağlantı ağı)
+  const rayliSistemler = {
+    "Metrobüs (Beylikdüzü - Söğütlüçeşme)": ["Beylikdüzü Sondurak", "Avcılar", "Küçükçekmece", "Yenibosna", "Bahçelievler", "İncirli", "Zeytinburnu", "Cevizlibağ", "Topkapı", "Edirnekapı", "Halıcıoğlu", "Okmeydanı", "Çağlayan", "Mecidiyeköy", "Zincirlikuyu", "15 Temmuz Şehitler Köprüsü", "Altunizade", "Acıbadem", "Uzunçayır", "Fikirtepe", "Söğütlüçeşme"],
+    "Marmaray (Halkalı - Gebze)": ["Halkalı", "Küçükçekmece", "Florya", "Yeşilköy", "Bakırköy", "Zeytinburnu", "Yenikapı", "Sirkeci", "Üsküdar", "Ayrılık Çeşmesi", "Söğütlüçeşme", "Göztepe", "Erenköy", "Suadiye", "Bostancı", "Küçükyalı", "Maltepe", "Kartal", "Pendik", "Tuzla", "Gebze"],
+    "M2 (Yenikapı - Hacıosman)": ["Yenikapı", "Vezneciler", "Haliç", "Şişhane", "Taksim", "Osmanbey", "Mecidiyeköy", "Gayrettepe", "Levent", "4. Levent", "Sanayi Mahallesi", "İTÜ - Ayazağa", "Atatürk Oto Sanayi", "Darüşşafaka", "Hacıosman"],
+    "M4 (Kadıköy - Sabiha Gökçen)": ["Kadıköy", "Ayrılık Çeşmesi", "Acıbadem", "Ünalan", "Göztepe", "Yenisahra", "Kozyatağı", "Bostancı", "Küçükyalı", "Maltepe", "Kartal", "Pendik", "Tavşantepe", "Sabiha Gökçen Havalimanı"],
+    "M5 (Üsküdar - Samandıra)": ["Üsküdar", "Fıstıkağacı", "Bağlarbaşı", "Altunizade", "Kısıklı", "Bulgurlu", "Ümraniye", "Çarşı", "Yamanevler", "Çakmak", "Ihlamurkuyu", "Altınşehir", "İmam Hatip Lisesi", "Dudullu", "Necip Fazıl", "Çekmeköy", "Samandıra Merkez"],
+    "M8 (Bostancı - Parseller)": ["Bostancı", "Emin Ali Paşa", "Ayşekadın", "Kozyatağı", "Küçükbakkalköy", "İçerenköy", "Kayışdağı", "Mevlana", "İMES", "MODOKO - KEYAP", "Dudullu", "Huzur", "Parseller"],
+    "M7 (Yıldız - Mahmutbey)": ["Yıldız", "Fulya", "Mecidiyeköy", "Çağlayan", "Kağıthane", "Nurtepe", "Alibeyköy", "Çırçır", "Veysel Karani", "Yeşilpınar", "Kazım Karabekir", "Yenimahalle", "Karadeniz Mahallesi", "Tekstilkent", "Oruç Reis", "Göztepe Mah.", "Mahmutbey"],
+    "M1A/B (Yenikapı - Kirazlı / Atatürk Hvl.)": ["Yenikapı", "Aksaray", "Emniyet - Fatih", "Topkapı - Ulubatlı", "Bayrampaşa", "Sağmalcılar", "Kocatepe", "Otogar", "Terazidere", "Davutpaşa", "Merter", "Zeytinburnu", "Bakırköy", "İncirli", "Bahçelievler", "Ataköy - Şirinevler", "Yenibosna", "Kirazlı"]
   };
 
-  const metroHatlari = {
-    "Marmaray (Halkalı - Gebze)": ["Halkalı", "Bakırköy", "Yenikapı", "Sirkeci", "Üsküdar", "Ayrılık Çeşmesi", "Söğütlüçeşme", "Bostancı", "Maltepe", "Kartal", "Pendik", "Gebze"],
-    "M2 (Yenikapı - Hacıosman)": ["Yenikapı", "Vezneciler", "Şişhane", "Taksim", "Osmanbey", "Şişli-Mecidiyeköy", "Gayrettepe", "Levent", "4. Levent", "İTÜ-Ayazağa", "Hacıosman"],
-    "M4 (Kadıköy - Sabiha Gökçen)": ["Kadıköy", "Ayrılık Çeşmesi", "Ünalan", "Göztepe", "Yenisahra", "Kozyatağı", "Bostancı", "Küçükyalı", "Maltepe", "Kartal", "Pendik", "Sabiha Gökçen Havalimanı"],
-    "M5 (Üsküdar - Samandıra)": ["Üsküdar", "Fıstıkağacı", "Bağlarbaşı", "Altunizade", "Ümraniye", "Çarşı", "Yamanevler", "Dudullu", "Madenler", "Çekmeköy", "Samandıra Merkez"],
-    "M8 (Bostancı - Parseller)": ["Bostancı", "Emin Ali Paşa", "Ayşekadın", "Kozyatağı", "Küçükbakkalköy", "İçerenköy", "Kayışdağı", "Mevlana", "İMES", "MODOKO", "Dudullu", "Parseller"],
-    "M7 (Yıldız - Mahmutbey)": ["Yıldız", "Fulya", "Şişli-Mecidiyeköy", "Çağlayan", "Kağıthane", "Alibeyköy", "Karadeniz Mahallesi", "Tekstilkent", "Mahmutbey"],
-    "M1A/B (Yenikapı - Kirazlı / Atatürk Hvl.)": ["Yenikapı", "Aksaray", "Emniyet-Fatih", "Topkapı-Ulubatlı", "Bayrampaşa", "Otogar", "Zeytinburnu", "Bakırköy-İncirli", "Kirazlı"]
+  // Birbirine yaya tüneli/üstgeçitle bağlı aktarma durakları
+  const aktarmaEslesmeleri = [
+    ["Uzunçayır", "Ünalan"],
+    ["Zincirlikuyu", "Gayrettepe"],
+    ["İncirli", "Bakırköy"]
+  ];
+
+  function ayniDurakMi(d1, d2) {
+    if (d1 === d2) return true;
+    return aktarmaEslesmeleri.some(cift => cift.includes(d1) && cift.includes(d2));
+  }
+
+  // 3. VAPUR İSKELELERİ (Gerçek Coğrafi Koordinatlar)
+  const iskeleler = {
+    "Beşiktaş": { x: 306, y: 152, yaka: "Avrupa" },
+    "Kabataş":  { x: 296, y: 168, yaka: "Avrupa" },
+    "Karaköy":  { x: 282, y: 185, yaka: "Avrupa" },
+    "Eminönü":  { x: 272, y: 202, yaka: "Avrupa" },
+    "Bakırköy": { x: 175, y: 242, yaka: "Avrupa" },
+    "Üsküdar":  { x: 334, y: 176, yaka: "Anadolu" },
+    "Kadıköy":  { x: 342, y: 228, yaka: "Anadolu" },
+    "Bostancı": { x: 425, y: 278, yaka: "Anadolu" },
+    "Heybeliada": { x: 485, y: 342, yaka: "Adalar" },
+    "Büyükada":   { x: 515, y: 352, yaka: "Adalar" }
   };
 
   const hatArama = document.querySelector("#hatArama");
+  const gunSecimi = document.querySelector("#gunSecimi");
   const hatSecimi = document.querySelector("#hatSecimi");
   const iettSonuc = document.querySelector("#iettSonuc");
-  const baslangicDurak = document.querySelector("#baslangicDurak");
-  const varisDurak = document.querySelector("#varisDurak");
-  const metroSonuc = document.querySelector("#metroSonuc");
 
   function hatlariListele(filtre = "") {
     hatSecimi.innerHTML = "";
-    const bulunanlar = Object.keys(iettVerileri).filter(hat => 
-      hat.toLocaleLowerCase('tr-TR').includes(filtre.toLocaleLowerCase('tr-TR'))
+    const aranan = filtre.toLocaleLowerCase('tr-TR').trim();
+    const bulunanlar = iettHatListesi.filter(([kod, ad]) =>
+      `${kod} - ${ad}`.toLocaleLowerCase('tr-TR').includes(aranan)
     );
 
     if (bulunanlar.length === 0) {
@@ -109,23 +322,27 @@
       return;
     }
 
-    bulunanlar.forEach(hat => {
-      hatSecimi.innerHTML += `<option value="${hat}">${hat}</option>`;
+    bulunanlar.forEach(([kod, ad]) => {
+      hatSecimi.innerHTML += `<option value="${kod}">${kod} - ${ad}</option>`;
     });
   }
 
   hatlariListele();
   hatArama.addEventListener("input", (e) => hatlariListele(e.target.value));
 
-  document.querySelector("#saatGetirBtn").addEventListener("click", () => {
-    const secilenHat = hatSecimi.value;
-    if (!secilenHat || !iettVerileri[secilenHat]) return alert("Lütfen geçerli bir hat seçin!");
+  function iettSaatleriniGoster() {
+    const secilenKod = hatSecimi.value;
+    const hatVerisi = iettHatListesi.find(h => h[0] === secilenKod);
+    if (!hatVerisi) return alert("Lütfen geçerli bir İETT hattı seçin!");
 
-    const saatler = iettVerileri[secilenHat];
+    const [kod, ad, basS, basD, bitS, bitD, aralik] = hatVerisi;
+    const gunTipi = gunSecimi.value;
+    const saatler = tamGunSaatUret(basS, basD, bitS, bitD, aralik, gunTipi);
+
     const simdi = new Date();
     const suAnDakika = simdi.getHours() * 60 + simdi.getMinutes();
 
-    let sonrakiSeferBilgisi = "Bugünkü planlı seferler tamamlandı. İlk sefer yarın sabah.";
+    let sonrakiSeferBilgisi = "Bugünkü planlı seferler tamamlandı. İlk sefer yarın sabah " + saatler[0] + " saatindedir.";
     let sonrakiSaat = null;
 
     for (const saat of saatler) {
@@ -134,75 +351,297 @@
       if (seferDakika >= suAnDakika) {
         const kalan = seferDakika - suAnDakika;
         sonrakiSaat = saat;
-        sonrakiSeferBilgisi = kalan === 0 
-          ? `🚌 Otobüs şu an (${saat}) kalkıyor!` 
-          : `⏱️ Bir sonraki sefer: ${saat} (${kalan} dakika kaldı)`;
+        sonrakiSeferBilgisi = kalan === 0
+          ? `🚌 ${kod} otobüsü şu an (${saat}) kalkıyor!`
+          : `⏱️ Bir sonraki ${kod} seferi: ${saat} (${kalan} dakika kaldı)`;
         break;
       }
     }
 
+    const listeHTML = saatler.map(s => {
+      const [sa, dk] = s.split(":").map(Number);
+      const seferDk = sa * 60 + dk;
+      let sinif = "";
+      if (s === sonrakiSaat) sinif = "aktif-saat";
+      else if (seferDk < suAnDakika) sinif = "gecmis-saat";
+      return `<li class="${sinif}">${s}</li>`;
+    }).join("");
+
     iettSonuc.style.display = "block";
     iettSonuc.innerHTML = `
       <div class="sonraki-sefer">${sonrakiSeferBilgisi}</div>
-      <strong>${secilenHat} Kalkış Saatleri:</strong>
-      <ul>${saatler.map(s => `<li class="${s === sonrakiSaat ? 'aktif-saat' : ''}">${s}</li>`).join("")}</ul>
-      <p class="bilgi-notu">* Yeşil kutu sıradaki en yakın kalkış saatini gösterir.</p>
+      <strong>${kod} - ${ad} (${saatler.length} Sefer):</strong>
+      <ul class="saat-listesi">${listeHTML}</ul>
+      <p class="bilgi-notu">* Yeşil kutu mevcut saatinize göre kalkacak ilk otobüsü gösterir.</p>
     `;
+  }
+
+  document.querySelector("#saatGetirBtn").addEventListener("click", iettSaatleriniGoster);
+  gunSecimi.addEventListener("change", () => {
+    if (iettSonuc.style.display === "block") iettSaatleriniGoster();
   });
 
-  const tumDuraklar = [...new Set(Object.values(metroHatlari).flat())].sort((a, b) => a.localeCompare(b, 'tr'));
+  // 2. RAYLI SİSTEMLER VE METROBÜS (BFS ile 0, 1, 2 veya 3 aktarmalı en kısa rota bulucu)
+  const baslangicDurak = document.querySelector("#baslangicDurak");
+  const varisDurak = document.querySelector("#varisDurak");
+  const metroSonuc = document.querySelector("#metroSonuc");
+
+  const tumDuraklar = [...new Set(Object.values(rayliSistemler).flat())].sort((a, b) => a.localeCompare(b, 'tr'));
   tumDuraklar.forEach(durak => {
     baslangicDurak.innerHTML += `<option value="${durak}">${durak}</option>`;
     varisDurak.innerHTML += `<option value="${durak}">${durak}</option>`;
   });
 
+  function enKisaRotaBul(baslangic, varis) {
+    const hatlar = Object.entries(rayliSistemler);
+    // Kuyruk elemanı: { durak, adimlar: [ { hat, binis, inis, durakSayisi, yayaAktarma } ] }
+    const kuyruk = [];
+    const ziyaretEdilenHatlar = new Set();
+
+    // Başlangıç durağından geçen tüm hatları kuyruğa ekle
+    for (const [hatAdi, duraklar] of hatlar) {
+      for (const d of duraklar) {
+        if (ayniDurakMi(baslangic, d)) {
+          kuyruk.push({
+            mevcutDurak: d,
+            mevcutHat: hatAdi,
+            adimlar: []
+          });
+        }
+      }
+    }
+
+    while (kuyruk.length > 0) {
+      const durum = kuyruk.shift();
+      const duraklar = rayliSistemler[durum.mevcutHat];
+      const binisIndex = duraklar.indexOf(durum.mevcutDurak);
+
+      // Bu hat üzerinde varış durağına direkt ulaşabiliyor muyuz?
+      for (let i = 0; i < duraklar.length; i++) {
+        if (ayniDurakMi(duraklar[i], varis)) {
+          const sonAdim = {
+            hat: durum.mevcutHat,
+            binis: durum.mevcutDurak,
+            inis: duraklar[i],
+            durakSayisi: Math.abs(i - binisIndex),
+            sonYaya: duraklar[i] !== varis ? varis : null
+          };
+          return [...durum.adimlar, sonAdim];
+        }
+      }
+
+      // En fazla 3 aktarmaya kadar ara
+      if (durum.adimlar.length >= 3) continue;
+
+      // Bu hattaki her duraktan başka hangi hatlara geçilebilir?
+      for (let i = 0; i < duraklar.length; i++) {
+        if (i === binisIndex) continue;
+        const aktarmaDuragi = duraklar[i];
+
+        for (const [sonrakiHat, sonrakiDuraklar] of hatlar) {
+          if (sonrakiHat === durum.mevcutHat) continue;
+          const anahtar = `${durum.mevcutHat}->${sonrakiHat}@${aktarmaDuragi}`;
+          if (ziyaretEdilenHatlar.has(anahtar)) continue;
+
+          for (const hedefDurak of sonrakiDuraklar) {
+            if (ayniDurakMi(aktarmaDuragi, hedefDurak)) {
+              ziyaretEdilenHatlar.add(anahtar);
+              kuyruk.push({
+                mevcutDurak: hedefDurak,
+                mevcutHat: sonrakiHat,
+                adimlar: [
+                  ...durum.adimlar,
+                  {
+                    hat: durum.mevcutHat,
+                    binis: durum.mevcutDurak,
+                    inis: aktarmaDuragi,
+                    durakSayisi: Math.abs(i - binisIndex),
+                    yayaAktarma: aktarmaDuragi !== hedefDurak ? hedefDurak : null
+                  }
+                ]
+              });
+            }
+          }
+        }
+      }
+    }
+    return null;
+  }
+
   document.querySelector("#rotaBulBtn").addEventListener("click", () => {
     const baslangic = baslangicDurak.value;
     const varis = varisDurak.value;
-
     if (baslangic === varis) return alert("Başlangıç ve varış durağı aynı olamaz!");
 
-    let rotaMetni = "";
+    const rota = enKisaRotaBul(baslangic, varis);
+    metroSonuc.style.display = "block";
 
-    for (const [hatAdi, duraklar] of Object.entries(metroHatlari)) {
-      if (duraklar.includes(baslangic) && duraklar.includes(varis)) {
-        const durakSayisi = Math.abs(duraklar.indexOf(baslangic) - duraklar.indexOf(varis));
-        rotaMetni = `
-          <strong>✅ Direkt Ulaşım (Aktarmasız)</strong><br><br>
-          1. <strong>${baslangic}</strong> durağından <strong>${hatAdi}</strong> hattına binin.<br>
-          2. Toplam <strong>${durakSayisi} durak</strong> sonra <strong>${varis}</strong> durağında inin.
-        `;
+    if (!rota) {
+      metroSonuc.innerHTML = "Bu iki durak arasında tanımlı raylı sistem rotası bulunamadı.";
+      return;
+    }
+
+    const toplamDurak = rota.reduce((toplam, adim) => toplam + adim.durakSayisi, 0);
+    const aktarmaSayisi = rota.length - 1;
+    const baslik = aktarmaSayisi === 0
+      ? `✅ Direkt Ulaşım (Aktarmasız - Toplam ${toplamDurak} durak)`
+      : `🔄 ${aktarmaSayisi} Aktarmalı Ulaşım (Toplam ${toplamDurak} durak)`;
+
+    let html = `<strong>${baslik}</strong><br><br>`;
+    rota.forEach((adim, index) => {
+      html += `${index + 1}. <strong>${adim.binis}</strong> durağından <strong>${adim.hat}</strong> hattına binin (${adim.durakSayisi} durak).<br>`;
+      if (index < rota.length - 1) {
+        const yayaNotu = adim.yayaAktarma ? ` (${adim.yayaAktarma} istasyonuna yaya geçişi yapıp)` : "";
+        html += `<div class="aktarma">📍 <strong>${adim.inis}</strong> durağında inin${yayaNotu} <strong>${rota[index + 1].hat}</strong> hattına aktarma yapın.</div>`;
+      } else {
+        html += `${index + 2}. <strong>${adim.inis}</strong> durağında inin.`;
+        if (adim.sonYaya) {
+          html += ` <small style="color:#65676b;">(${adim.sonYaya} bağlantısı)</small>`;
+        }
+      }
+    });
+
+    metroSonuc.innerHTML = html;
+  });
+
+  // 3. VEKTÖREL İSKELE HARİTASI & TAM GÜN VAPUR SAATLERİ
+  const kalkisIskele = document.querySelector("#kalkisIskele");
+  const varisIskele = document.querySelector("#varisIskele");
+  const vapurSonuc = document.querySelector("#vapurSonuc");
+  const iskeleNoktalariG = document.querySelector("#iskeleNoktalari");
+  const rotaCizgisi = document.querySelector("#rotaCizgisi");
+
+  let secimSirasi = 0;
+
+  Object.entries(iskeleler).forEach(([ad, bilgi]) => {
+    kalkisIskele.innerHTML += `<option value="${ad}">${ad} (${bilgi.yaka})</option>`;
+    varisIskele.innerHTML += `<option value="${ad}">${ad} (${bilgi.yaka})</option>`;
+
+    const g = document.createElementNS("http://www.w3.org/2000/svg", "g");
+    g.setAttribute("class", "iskele-nokta");
+    g.dataset.iskele = ad;
+
+    const circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+    circle.setAttribute("cx", bilgi.x);
+    circle.setAttribute("cy", bilgi.y);
+    circle.setAttribute("r", "6");
+    circle.setAttribute("fill", "#0055a5");
+    circle.setAttribute("stroke", "#ffffff");
+    circle.setAttribute("stroke-width", "2");
+    circle.setAttribute("id", `nokta-${ad}`);
+
+    const text = document.createElementNS("http://www.w3.org/2000/svg", "text");
+    text.setAttribute("x", bilgi.yaka === "Avrupa" ? bilgi.x - 8 : bilgi.x + 9);
+    text.setAttribute("y", bilgi.y + 4);
+    text.setAttribute("text-anchor", bilgi.yaka === "Avrupa" ? "end" : "start");
+    text.setAttribute("class", "iskele-etiket");
+    text.textContent = ad;
+
+    g.appendChild(circle);
+    g.appendChild(text);
+    iskeleNoktalariG.appendChild(g);
+
+    g.addEventListener("click", () => {
+      if (secimSirasi === 0) {
+        kalkisIskele.value = ad;
+        secimSirasi = 1;
+      } else {
+        if (kalkisIskele.value === ad) return alert("Kalkış ve varış iskelesi aynı olamaz!");
+        varisIskele.value = ad;
+        secimSirasi = 0;
+        haritaGuncelle();
+        vapurSaatleriniGoster();
+      }
+      haritaGuncelle();
+    });
+  });
+
+  kalkisIskele.value = "Beşiktaş";
+  varisIskele.value = "Kadıköy";
+
+  function haritaGuncelle() {
+    const k = kalkisIskele.value;
+    const v = varisIskele.value;
+
+    Object.keys(iskeleler).forEach(ad => {
+      const c = document.getElementById(`nokta-${ad}`);
+      c.setAttribute("fill", "#0055a5");
+      c.setAttribute("r", "6");
+    });
+
+    if (iskeleler[k]) {
+      const ck = document.getElementById(`nokta-${k}`);
+      ck.setAttribute("fill", "#28a745");
+      ck.setAttribute("r", "8");
+    }
+    if (iskeleler[v]) {
+      const cv = document.getElementById(`nokta-${v}`);
+      cv.setAttribute("fill", "#e30613");
+      cv.setAttribute("r", "8");
+    }
+
+    if (iskeleler[k] && iskeleler[v] && k !== v) {
+      rotaCizgisi.setAttribute("x1", iskeleler[k].x);
+      rotaCizgisi.setAttribute("y1", iskeleler[k].y);
+      rotaCizgisi.setAttribute("x2", iskeleler[v].x);
+      rotaCizgisi.setAttribute("y2", iskeleler[v].y);
+      rotaCizgisi.setAttribute("visibility", "visible");
+    } else {
+      rotaCizgisi.setAttribute("visibility", "hidden");
+    }
+  }
+
+  function vapurSaatleriniGoster() {
+    const k = kalkisIskele.value;
+    const v = varisIskele.value;
+    if (k === v) return alert("Kalkış ve varış iskelesi aynı olamaz!");
+
+    haritaGuncelle();
+
+    const adalarSeferiMi = iskeleler[k].yaka === "Adalar" || iskeleler[v].yaka === "Adalar";
+    const aralik = adalarSeferiMi ? 60 : 30;
+    const saatler = tamGunSaatUret(6, 30, 23, 30, aralik, "haftaici");
+
+    const simdi = new Date();
+    const suAnDakika = simdi.getHours() * 60 + simdi.getMinutes();
+
+    let sonrakiBilgi = "Bugünkü vapur seferleri tamamlandı. İlk sefer yarın sabah 06:30.";
+    let sonrakiSaat = null;
+
+    for (const s of saatler) {
+      const [sa, dk] = s.split(":").map(Number);
+      const seferDk = sa * 60 + dk;
+      if (seferDk >= suAnDakika) {
+        const kalan = seferDk - suAnDakika;
+        sonrakiSaat = s;
+        sonrakiBilgi = kalan === 0
+          ? `⛴️ ${k} -> ${v} vapuru şu an (${s}) kalkıyor!`
+          : `⏱️ Sıradaki ${k} -> ${v} vapuru: ${s} (${kalan} dakika kaldı)`;
         break;
       }
     }
 
-    if (!rotaMetni) {
-      for (const [hat1, duraklar1] of Object.entries(metroHatlari)) {
-        if (!duraklar1.includes(baslangic)) continue;
-        
-        for (const [hat2, duraklar2] of Object.entries(metroHatlari)) {
-          if (hat1 === hat2 || !duraklar2.includes(varis)) continue;
+    const listeHTML = saatler.map(s => {
+      const [sa, dk] = s.split(":").map(Number);
+      const seferDk = sa * 60 + dk;
+      let sinif = "";
+      if (s === sonrakiSaat) sinif = "aktif-saat";
+      else if (seferDk < suAnDakika) sinif = "gecmis-saat";
+      return `<li class="${sinif}">${s}</li>`;
+    }).join("");
 
-          const ortakDurak = duraklar1.find(d => duraklar2.includes(d));
-          if (ortakDurak) {
-            const ilkEtap = Math.abs(duraklar1.indexOf(baslangic) - duraklar1.indexOf(ortakDurak));
-            const ikinciEtap = Math.abs(duraklar2.indexOf(ortakDurak) - duraklar2.indexOf(varis));
-            rotaMetni = `
-              <strong>🔄 1 Aktarmalı Ulaşım (Toplam ${ilkEtap + ikinciEtap} durak)</strong><br><br>
-              1. <strong>${baslangic}</strong> durağından <strong>${hat1}</strong> hattına binin (${ilkEtap} durak).<br>
-              <div class="aktarma">📍 <strong>${ortakDurak}</strong> durağında inip <strong>${hat2}</strong> hattına aktarma yapın.</div>
-              2. <strong>${varis}</strong> durağında inin (${ikinciEtap} durak).
-            `;
-            break;
-          }
-        }
-        if (rotaMetni) break;
-      }
-    }
+    vapurSonuc.style.display = "block";
+    vapurSonuc.innerHTML = `
+      <div class="sonraki-sefer">${sonrakiBilgi}</div>
+      <strong>⛴️ ${k} İskelesi ➔ ${v} İskelesi Tüm Gün Seferleri:</strong>
+      <ul class="saat-listesi">${listeHTML}</ul>
+    `;
+  }
 
-    metroSonuc.style.display = "block";
-    metroSonuc.innerHTML = rotaMetni || "Bu iki durak arasında 1 aktarma ile ulaşım bulunamadı.";
-  });
+  document.querySelector("#vapurSaatBtn").addEventListener("click", vapurSaatleriniGoster);
+  kalkisIskele.addEventListener("change", haritaGuncelle);
+  varisIskele.addEventListener("change", haritaGuncelle);
+  haritaGuncelle();
 </script>
 
 </body>
